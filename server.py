@@ -76,17 +76,15 @@ class GameServer:
                 data = client_socket.recv(1024)
                 if not data:
                     break
-                print(f"{address[1]}: {data.decode()}")
+                for client in self.clients:
+                    if client[1] == address[1]:  # Compare port (address[1])
+                        name = client[0]  # Extract the name from the tuple
+                        client_found = True
+                        break
                 if data.decode() == self.word:
-                    # Check if the client's address is in the clients list
-                    client_found = False  # Flag to check if the client was found in the list
-                    for client in self.clients:
-                        if client[1] == address[1]:  # Compare port (address[1])
-                            name = client[0]  # Extract the name from the tuple
-                            print(f"Correct word guessed by {name}!")
-                            client_found = True
-                            break
-                    print(str(name) + " won!!!!!")
+                    print(f"Correct word guessed by {name}!")
+                else:
+                    print(f"{name}: {data.decode()}")
                 # Broadcast the received message to all other clients
                 self.broadcast(data, client_socket, address)
             except Exception as e:
@@ -98,6 +96,7 @@ class GameServer:
             (self.get_client_name_by_socket(client_socket), address[1]))  # Remove client by name and port
 
     def broadcast(self, message, sender_socket=None, address=None):
+        name=""
         for client in self.clients:
             client_name, client_port = client
             try:
@@ -106,7 +105,12 @@ class GameServer:
                     if sender_socket.getpeername()[1] != client_port:
                         client_socket = self.get_client_socket_by_port(client_port)
                         if client_socket:
-                            client_socket.sendall(f"{client_name}: {message.decode()}".encode())
+                            for client in self.clients:
+                                if client[1] == address[1]:  # Compare port (address[1])
+                                    name = client[0]  # Extract the name from the tuple
+                                    client_found = True
+                                    break
+                            client_socket.sendall(f"{name}: {message.decode()}".encode())
                 else:
                     client_socket = self.get_client_socket_by_port(client_port)
                     if client_socket:
