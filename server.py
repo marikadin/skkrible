@@ -9,8 +9,8 @@ import sys
 pygame.init()
 
 # Set up the screen
-screen_width = 600
-screen_height = 500  # Increased height to make room for the chat box
+screen_width = 800
+screen_height = 600  # Increased height to make room for the chat box
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Drawing App with Chat")
 
@@ -150,8 +150,6 @@ def main_game_loop():
             for i, word in enumerate(random_words):
                 draw_button(word, 50, 50 + i * (button_height + 20))
 
-        draw_messages()  # Draw chat messages
-        draw_input_box()  # Draw the input box for chat
 
         # Event handling
         for event in pygame.event.get():
@@ -193,21 +191,6 @@ def draw_button(text, x, y):
     screen.blit(text_surface, text_rect)
 
 
-# Function to draw chat input box
-def draw_input_box():
-    pygame.draw.rect(screen, (255, 255, 255), input_box)
-    txt_surface = font.render(text, True, text_color)
-    screen.blit(txt_surface, (input_box.x + 5, input_box.y + 5))
-
-
-# Function to draw messages in the chat
-def draw_messages():
-    y_offset = 20
-    for message in messages:
-        txt_surface = font.render(message, True, text_color)
-        screen.blit(txt_surface, (20, y_offset))
-        y_offset += 40
-
 
 # Function to handle drawing app
 def drawing_app():
@@ -216,7 +199,14 @@ def drawing_app():
     drawn_lines = []  # List to store drawn lines
     running = True
     start_time = time.time()
-    while running and time.time() - start_time < 60:  # 60 seconds duration for drawing
+
+    while running and time.time() - start_time < 60:
+        screen.fill((255, 255, 255))  # Clear the screen (white background)
+
+        elapsed_time = 60 - (time.time() - start_time)  # Fix elapsed time calculation
+        timer_text = font.render(f"{int(elapsed_time)}", True, (0, 0, 0))  # Render timer text
+        text_rect = timer_text.get_rect(center=(400, 50))  # Position it at the top center
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -235,7 +225,13 @@ def drawing_app():
         for line in drawn_lines:
             pygame.draw.line(screen, (0, 0, 0), line[0], line[1], 5)
 
+        # Draw the timer on top
+        screen.blit(timer_text, text_rect)
+
+        # Update the display
         pygame.display.flip()
+
+    pygame.quit()
 
 
 # Start the game
